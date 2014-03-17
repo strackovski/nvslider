@@ -1,0 +1,27 @@
+{
+  "name": "nvslider",
+  "title": "nvslider",
+  "description": "Easy to use DOM element slider.",
+  "version": "0.1.0",
+  "homepage": "https://github.com/strackovski/nvslider",
+  "author": {
+    "name": "Vladimir Strackovski",
+    "email": "vladimir.strackovski@gmail.com",
+    "url": "http://www.strackovski.net/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/strackovski/nvslider.git"
+  },
+  "bugs": "https://github.com/strackovski/nvslider/issues",
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/strackovski/nvslider/blob/master/LICENSE-MIT"
+    }
+  ],
+  "dependencies": {
+    "jquery": "*"
+  },
+  "keywords": []
+}
