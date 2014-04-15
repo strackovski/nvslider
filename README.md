@@ -7,7 +7,7 @@ A simple DOM element slider. Visit the [nvslider](http://www.strackovski.net/nvs
 
 
 ### How to use the plugin
-##### 1. Make an unordered list and populate it with list items that contain span elements
+##### 1. Make an unordered list, populate it with list items that contain span elements
 <pre>&#60ul class="myList"&#62
 	&#60li&#62&#60span&#62Item 1&#60/span&#62&#60/li&#62
 	&#60li&#62&#60span&#62Item 2&#60/span&#62&#60/li&#62
