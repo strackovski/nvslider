@@ -19,5 +19,5 @@ A simple DOM element slider. Visit the [nvslider](http://www.strackovski.net/nvs
 If you want to adjust the width, set it on the parent, not the ul element itself.*
 
 ##### 2. Call the plugin on an unordered list inside your document.ready() event.
-<pre><code>$(‘.myList’).nvslider();
-</code></pre>
+<pre>$(&#39;.myList&#39;).nvslider();
+</pre>

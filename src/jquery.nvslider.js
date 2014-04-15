@@ -8,7 +8,7 @@
     $.nvslider = function (el, options) {
         var base = this;
         base.el = el;
-        base.$el = $(el).addClass('nvs-ul').wrap('<div class="nvs-wrap"></div>');
+        base.$el = $(el).addClass('nvs-ul clrfix').wrap('<div class="nvs-wrap"></div>');
 
         base.init = function () {
 
@@ -19,8 +19,9 @@
             base.$wrap = base.$el.parent().closest('div.nvs-wrap').addClass('nvs-wrapper-' + base.options.orientation);
 
             //cache existing DOM elements
-            base.$children = base.$el.children('li').addClass('nvs-li-landscape');
-            base.$grandchildren = base.$wrap.find('.nvs-li-landscape > *');
+            //base.$children = base.$el.children('li').addClass('nvs-li-elem');
+            base.$children = base.$wrap.find('.nvs-ul > *').addClass('nvs-li-elem');
+            base.$grandchildren = base.$wrap.find('.nvs-li-elem > *');
 
             //height for future reference
             base.pureHeight = parseInt(base.options.height, 10);
@@ -50,6 +51,8 @@
                     base.$grandchildren.addClass('nvs-span-default');
                 } else if (base.options.theme === 'gallery') {
                     base.$grandchildren.addClass('nvs-span-gallery');
+                } else {
+                    base.$grandchildren.addClass('nvs-span-usual');
                 }
             }
             if (base.options.theme === 'gallery') {
