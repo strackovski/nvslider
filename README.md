@@ -21,3 +21,7 @@ If you want to adjust the width, set it on the parent, not the ul element itself
 ##### 2. Call the plugin on an unordered list inside your document.ready() event.
 <pre>$(&#39;.myList&#39;).nvslider();
 </pre>
+
+### License
+
+Released under the MIT license. Please see the LICENSE file provided with this project.
