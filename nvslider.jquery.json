@@ -2,12 +2,12 @@
   "name": "nvslider",
   "title": "nvslider",
   "description": "A lightweight DOM element slider.",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "homepage": "https://github.com/strackovski/nvslider",
   "author": {
-    "name": "Vladimir Strackovski",
-    "email": "vladimir.strackovski@gmail.com",
-    "url": "http://www.strackovski.net/"
+    "name": "Vladimir Stračkovski",
+    "email": "vlado@nv3.org",
+    "url": "http://www.nv3.org"
   },
   "repository": {
     "type": "git",
@@ -17,7 +17,7 @@
   "licenses": [
     {
       "type": "MIT",
-      "url": "https://github.com/strackovski/nvslider/blob/master/LICENSE-MIT"
+      "url": "https://github.com/strackovski/nvslider/blob/master/LICENSE.md"
     }
   ],
   "dependencies": {
