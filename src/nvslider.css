@@ -1,3 +1,11 @@
+/*!
+ * nv/Slider stylesheet
+ *
+ * Licensed under the MIT license
+ * <http://choosealicense.com/licenses/mit/>
+ *
+ * 2014 Vladimir Stračkovski <vlado@nv3.org>
+ */
 .nvs-wrapper-landscape{
     width:100%;
     overflow: hidden;
@@ -25,12 +33,18 @@
 }
 .nvs-li-elem{
     vertical-align: top;
-
     display: inline-block;
+    *display: inline;
+    zoom: 1;
     overflow: hidden;
-    white-space: normal;
     position: relative;
+    font-size: medium;
 
+
+}
+
+.nvs-li-elem > * {
+    white-space: normal;
 }
 .nvs-ul{
     left:0;
@@ -38,6 +52,7 @@
     list-style: none;
     padding: 0;
     margin:0;
+    font-size: 0;
 }
 .nvs-nav{
     text-align: center;
@@ -106,16 +121,4 @@
     border:3px solid #000;
     border-left:none;
     border-right:none;
-}
-
-.clrfix:before,
-.clrfix:after {
-    content:"";
-    display:table;
-}
-.clrfix:after {
-    clear:both;
-}
-.clrfix{
-    zoom:1; /* For IE 6/7 (trigger hasLayout) */
 }
