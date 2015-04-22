@@ -1,5 +1,5 @@
 ## nvslider
-A simple DOM element slider. Visit the [nvslider](http://www.strackovski.net/nvslider/) page for a detailed documentation and to see the slider in action.
+A simple DOM element slider. Visit the [nvslider](http://www.envee.eu/projects/nvslider/) page for a detailed documentation and to see the slider in action.
 
 ### Dependencies
  - jQuery
