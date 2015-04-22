@@ -1,9 +1,10 @@
 /* ===================================================
  * nv/Slider JavaScript Library
+ * Version 1.2.0
  * http://github.com/strackovski/nvslider
  * http://www.nv3.org/nvslider
  * ===================================================
- * Copyright 2014 Vladimir Stračkovski <vlado@nv3.org>
+ * Copyright 2015 Vladimir Stračkovski <vlado@nv3.org>
  *
  * Licensed under the MIT License;
  * you may not use this file except in compliance with the License.
@@ -22,221 +23,247 @@
 /*global console:false */
 /*jshint unused:false*/
 
-;(function ($, window, document, undefined) {
-    'use strict';
-
-    $.nvslider = function (el, options) {
-        var base = this;
-        base.el = el;
-        base.$el = $(el).addClass('nvs-ul').wrap('<div class="nvs-wrap"></div>');
-
-        //Init gets called first
-        base.init = function () {
-
-            // Extend options
-            base.options = $.extend({}, $.fn.nvslider.defaults, options);
-
-            // Add class to wrapper based on 'orientation' option
-            base.$wrap = base.$el.parent().closest('div.nvs-wrap').addClass('nvs-wrapper-' + base.options.orientation);
-
-            // Cache existing DOM elements
-            base.$children = base.$wrap.find('.nvs-ul > *').addClass('nvs-li-elem');
-            base.$grandchildren = base.$wrap.find('.nvs-li-elem > *');
-
-            // Height for future reference
-            base.pureHeight = parseInt(base.options.height, 10);
-
-            // Call setup()
-            base.setup();
+;(function($, window, document, undefined) {
+    if (typeof  Object.create !== 'function') {
+        Object.create = function (o) {
+            var F = function () {};
+            F.prototype = o;
+            return new F();
         };
+    }
 
-        // General setup
-        base.setup = function () {
-            // If orientation == landscape, override rows - there can only be 1
-            if (base.options.orientation === 'landscape') {
-                base.options.rows = 1;
-            }
+    var main_self;
+    var methods = {
 
-            // How many items to slide for
-            // In portrait orientation, max number of slideFor is number of rows
-            if (base.options.orientation === 'portrait') {
-                if (base.options.slideFor > base.options.rows) {
-                    base.options.slideFor = base.options.rows;
-                }
-            }
-            // Add different classes to inner elements based on 'theme'
-            if (base.$grandchildren.length > 0) {
-                if (base.options.theme === 'default') {
-                    base.$grandchildren.addClass('nvs-span-default');
-                } else if (base.options.theme === 'gallery') {
-                    base.$grandchildren.addClass('nvs-span-gallery');
-                } else {
-                    base.$grandchildren.addClass('nvs-span-usual');
-                }
-            }
-            if (base.options.theme === 'gallery') {
-                base.$wrap.addClass('nvs-wrapper-gallery');
-            }
+        destroy: function (elem) {
+            var self = this;
 
-            // Create navigation
-            if (base.options.orientation === 'landscape') {
-                base.$wrap.prepend('<div class="nvs-nav-left nvs-nav"><i class="fa fa-angle-left"></i></div>');
-                base.$wrap.prepend('<div class="nvs-nav-right nvs-nav"><i class="fa fa-angle-right"></i></div>');
-            } else if (base.options.orientation === 'portrait') {
-                base.$wrap.prepend('<div class="nvs-nav-up nvs-nav"><i class="fa fa-angle-up"></i></div>');
-                base.$wrap.prepend('<div class="nvs-nav-down nvs-nav"><i class="fa fa-angle-down"></i></div>');
-            }
-
-            // Cache elements for later use
-            base.$nav = base.$wrap.find('.nvs-nav');
-            base.$navLeft = base.$wrap.find('.nvs-nav-left');
-            base.$navRight = base.$wrap.find('.nvs-nav-right');
-            base.$navUp = base.$wrap.find('.nvs-nav-up');
-            base.$navDown = base.$wrap.find('.nvs-nav-down');
-
-            // Call nav()
-            base.nav();
-        };
-
-        // Set up navigation
-        base.nav = function () {
-            // Set navigation classes (style)
-            base.$navLeft.addClass(base.options.leftArrowClass);
-            base.$navRight.addClass(base.options.rightArrowClass);
-            base.$navUp.addClass(base.options.topArrowClass);
-            base.$navDown.addClass(base.options.bottomArrowClass);
-
-            // Position navigation controls
-            var marginTop = (base.pureHeight / 2 - (base.$navLeft.height() / 2)),
-                marginLeft = (base.$wrap.width() / 2 - (base.$navUp.width() / 2));
-
-            // Adjust appearance according to 'theme'
-            if (base.options.theme === 'gallery') {
-                base.$nav.css({background: '#000', opacity: 0.8, color: '#fff'});
-            }
-
-            base.$wrap.css(base.options.height);
-
-            if (base.options.orientation === 'portrait') {
-                base.$nav.css({marginLeft: marginLeft});
+            if (self.data('plugin_nvslider')) {
+                NvSlider.destroy(self, elem);
             } else {
-                base.$nav.css({marginTop: marginTop});
+                console.log('Error: Trying to destroy a non-existent slider. No data.');
             }
-
-            // Call css()
-            base.css();
-        };
-
-        base.css = function () {
-            var width_in_percents = 100 / base.options.showItems + '%';
-            base.$children.css({height: base.options.height});
-            base.$wrap.css({height: base.pureHeight * base.options.rows});
-            base.$wrap.css(base.options.containerCss);
-            //base.$grandchildren.css({display: 'inline-block'});
-            base.$children.width(width_in_percents);
-
-            base.clicks();
-        };
-
-        base.clicks = function () {
-            // Make sure the slider stops when there are no more items to show
-            var totalChildren = base.$children.length,
-                safeLimit = -(totalChildren - base.options.showItems) * (100 / base.options.showItems),
-                control;
-
-            // The bigger number defines control - when the slider should stop sliding
-            if (base.options.rows >= base.options.slideFor) {
-                control = base.options.rows;
-            } else {
-                control = base.options.slideFor;
-            }
-
-            // When to stop sliding
-            var safeLimitPortrait = -((Math.ceil(totalChildren / base.options.showItems) - control) * base.pureHeight),
-                leftOffset = 0,
-                topOffset = 0;
-
-            // Click handlers
-            base.$navDown.on('click', function () {
-                topOffset -= base.pureHeight * base.options.slideFor;
-                if (topOffset < safeLimitPortrait) {
-                    topOffset = safeLimitPortrait;
-                }
-                base.$el.animate({top: topOffset});
-
-            });
-            base.$navUp.on('click', function () {
-                if (topOffset < 0) {
-                    topOffset += base.pureHeight * base.options.slideFor;
-                    if (topOffset > 0) {
-                        topOffset = 0;
-                    }
-                }
-                base.$el.animate({top: topOffset});
-            });
-            base.$navLeft.on('click', function () {
-                if (leftOffset < 0) {
-                    leftOffset += (100 / base.options.showItems) * base.options.slideFor;
-                    if (leftOffset > 0) {
-                        leftOffset = 0;
-                    }
-                }
-                base.$el.animate({left: leftOffset + '%'});
-            });
-            base.$navRight.on('click', function () {
-                leftOffset -= (100 / base.options.showItems) * base.options.slideFor;
-                if (leftOffset < safeLimit) {
-                    leftOffset = safeLimit;
-                }
-                base.$el.animate({left: leftOffset + '%'});
-            });
-
-            base.resize();
-
-        };
-
-        // Resize for fluid effect
-        base.resize = function () {
-            $(window).resize(function () {
-                var navMarginTop = (base.pureHeight / 2 - (base.$nav.height() / 2)),
-                    navMarginLeft = (base.$wrap.width() / 2 - (base.$nav.width() / 2));
-
-                if (base.options.orientation === 'landscape') {
-                    base.$nav.css({marginTop: navMarginTop});
-                }
-
-                if (base.options.orientation === 'portrait') {
-                    base.$nav.css({marginLeft: navMarginLeft});
-                }
-            });
-        };
-
-        // Call init, get everything rolling
-        base.init();
+        }
     };
 
+    var NvSlider = {
+        init: function (options, elem) {
+            main_self = this;
+            var self = this;
+            self.elem = elem;
+            self.$elem = $(elem)
+                .addClass('nvs-inner-wrap')
+                .wrap('<div class="nvs-wrap"></div>');
+
+            self.options = $.extend({}, $.fn.nvslider.options, options);
+            self.options.orientation = 'landscape';
+            self.options.rows = 1;
+
+            self.$wrap = self.$elem.closest('.nvs-wrap')
+                .addClass('nvs-wrapper-' + self.options.orientation);
+
+            if (self.options.slideFor > self.options.showItems) {
+                self.options.slideFor = self.options.showItems;
+            }
+
+            var slider = self.$wrap.find('.nvs-inner-wrap'),
+                items = slider.find('> *'),
+                len = items.length,
+                first = items.filter(':first').addClass('first-nvs-elem'),
+                last = items.filter(':last');
+
+            if (len <= self.options.showItems) {
+                self.options.showNav = false;
+                self.options.slideshow = false;
+            }
+
+            var slideFor = self.options.slideFor;
+
+            var lastClone, firstClone;
+
+            firstClone = items.slice(-slideFor).clone(true);
+            first.before(firstClone);
+            lastClone = items.slice(0, len-slideFor).clone(true);
+            last.after(lastClone);
+
+            self.$children = self.$wrap.find('.nvs-inner-wrap > *')
+                .addClass('nvs-elem');
+
+            self.$grandchildren = self.$wrap.find('.nvs-elem > *');
+
+            self.setup();
+        },
+
+        setup: function () {
+
+            var self = this;
+            self.options.rows = 1;
+
+            // add class based on theme
+            self.$wrap.addClass('nvs-theme-' + self.options.theme);
+
+            self.$outerwrap = self.$wrap.parent();
+            self.$outerwrap.prepend('<div class="nvs-nav nvs-nav-left"><i class="fa fa-angle-left"></i></div>');
+            self.$outerwrap.prepend('<div class="nvs-nav nvs-nav-right"><i class="fa fa-angle-right"></i></div>');
+
+            self.handlers();
+            self.setStyle();
+        },
+
+        setStyle: function () {
+            var self = this;
+
+
+            if (!self.options.showNav ) {
+                self.$nav.css({opacity: 0, visibility: 'hidden'});
+            }
+            self.$innerWrap = self.$wrap.find('.nvs-inner-wrap');
+            var width_in_percents = 100 / self.options.showItems + '%';
+
+            self.$children.css({width: width_in_percents});
+
+            var pure_percents = 100/self.options.showItems;
+            var left = '-' + (pure_percents * self.options.slideFor) + '%';
+            self.$innerWrap.css('left', left);
+
+        },
+
+        handlers: function () {
+            var self = this;
+            self.$nav = self.$outerwrap.find('.nvs-nav');
+            self.$navLeft = self.$outerwrap.find('.nvs-nav-left');
+            self.$navRight = self.$outerwrap.find('.nvs-nav-right');
+
+            self.$navLeft.on('click', function () {
+                if (self.$innerWrap.is(':not(:animated)')) {
+
+                    var pure_percents = 100/self.options.showItems;
+                    var items = self.$wrap.find('.nvs-inner-wrap > *'),
+                        first = items.filter(':first');
+
+                    var lastItems = items.slice(-self.options.slideFor);
+                    first.before(lastItems);
+
+                    var left_style = self.$innerWrap[0].style.left,
+                        left_num = parseInt(left_style, 10),
+                        left_new = (left_num - (self.options.slideFor * pure_percents)),
+                        left_new_percent = left_new + '%';
+
+                    self.$innerWrap.removeAttr('style');
+                    self.$innerWrap.css({left: left_new_percent});
+
+                    self.$innerWrap.animate({left: left_style}, {}, function () {
+                        self.$innerWrap.css('left', left_style);
+                    });
+                }
+            });
+
+            self.$navRight.on('click', function () {
+
+                if (self.$innerWrap.is(':not(:animated)')) {
+
+                    var pure_percents = 100/self.options.showItems;
+                    var items = self.$wrap.find('.nvs-inner-wrap > *'),
+                        last = items.filter(':last');
+
+                    var firstItems = items.slice(0, self.options.slideFor);
+                    last.after(firstItems);
+
+                    var left_style = self.$innerWrap[0].style.left,
+                        left_num = parseInt(left_style, 10),
+                        left_new = (left_num + (self.options.slideFor * pure_percents)),
+                        left_new_percent = left_new + '%';
+
+                    self.$innerWrap.removeAttr('style');
+                    self.$innerWrap.css({left: left_new_percent});
+
+                    self.$innerWrap.animate({left: left_style}, {}, function () {
+                        self.$innerWrap.css('left', left_style);
+                    });
+                }
+            });
+
+            if (self.options.slideshow) {
+                self.slideshow();
+            }
+        },
+
+        slideshow: function () {
+            var self = this;
+
+            setInterval(function () {
+                self.$navRight.click();
+            }, self.options.timer);
+
+        },
+
+        destroy: function (obj, elem) {
+            var self = obj;
+
+            self.elem = elem;
+            self.$elem = $(elem);
+
+            // remove wrap
+            self.$wrap = self.$elem.parents('.nvs-wrap');
+            self.$wrap.find('.nvs-inner-wrap > *')
+                .removeClass('nvs-elem').removeAttr('style');
+
+            self.$elem.removeClass('nvs-inner-wrap').removeAttr('style');
+
+            var $contents = $(self.$wrap.html());
+
+            var gt = obj.data('elements') + main_self.options.slideFor;
+
+            // remove duplicated elements
+            $contents.find(' > *:gt(' + (gt-1) + ')').remove();
+            $contents.find(' > *:lt(' + main_self.options.slideFor + ')').remove();
+
+            var firstElem = $contents.find('.first-nvs-elem');
+
+            if (firstElem.prevAll().length) {
+
+                var elemsBefore = Array.prototype.reverse.call(firstElem.prevAll());
+                firstElem.prevAll().remove();
+                $contents.append(elemsBefore);
+            }
+
+            var $parent = self.$wrap.parent();
+            $parent.html($contents[0]);
+            obj.removeData();
+        }
+    };
+
+    // plugin wrapper
     $.fn.nvslider = function (options) {
-        var $this = $(this);
+        var $this = this;
 
-        return $this.each(function () {
-            var obj = new $.nvslider($this, options);
-            return obj;
-        });
+        if (methods[options]) {
+            return methods[options].apply($this, this);
+        } else {
+            if ($this.data('plugin_nvslider')) {
+                return;
+            }
+
+            return this.each(function () {
+                var nvslider = Object.create(NvSlider);
+                var num = $this.find(' > *').length;
+
+                nvslider.init(options, this);
+
+                $this.data('plugin_nvslider', true);
+                $this.data('elements', num);
+            });
+        }
     };
 
-    // Defaults
-    $.fn.nvslider.defaults = {
-        showItems: 3,
-        orientation: 'landscape',
-        rows: 1,
-        slideFor: 1,
-        containerCss: {background: '#d2d2d2'},
+    // plugin options
+    $.fn.nvslider.options = {
+        showItems: 2,
+        slideFor: 3,
         theme: 'default',
-        leftArrowClass: 'nvs-horizontal-navigation-arrow',
-        rightArrowClass: 'nvs-horizontal-navigation-arrow',
-        topArrowClass: 'nvs-vertical-navigation-arrow',
-        bottomArrowClass: 'nvs-vertical-navigation-arrow',
-        height: '150px'
+        showNav: true,
+        slideshow: false,
+        timer: 5000
     };
 
 }(jQuery, window, document));
