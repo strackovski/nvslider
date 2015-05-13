@@ -9,6 +9,7 @@
  */
 
 .nvs-wrap *:not(i.fa) {
+    -moz-box-sizing: border-box;
     box-sizing: border-box;
     margin: 0;
     padding: 0;
@@ -42,9 +43,10 @@
     white-space: normal;
     font-size: medium;
     vertical-align: top;
+    display: -moz-inline-stack;
     display: inline-block;
     *display: inline;
-    zoom: 1;
+    zoom:1;
     position: relative;
     padding: 16px;
 }
@@ -63,7 +65,10 @@
     top: 0;
     z-index: 2;
     cursor: pointer;
+    display: -moz-inline-stack;
     display: inline-block;
+    *display: inline;
+    zoom:1;
     vertical-align: middle;
     text-align: center;
 }
